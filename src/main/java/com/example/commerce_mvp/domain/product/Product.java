@@ -19,14 +19,19 @@ public class Product {
     @Column(unique = true)
     private String naverProductId;
 
+    private String category1;
+    private String category2;
+
     //이 매개변수들로 객체를 만든다
-    public static Product of(String name, int price, String imageUrl, String naverProductId){
+    public static Product of(String name, int price, String imageUrl, String naverProductId, String category1, String category2){
         Product product = new Product();
         product.name = name;
         product.price = price;
         product.imageUrl = imageUrl;
         product.naverProductId = naverProductId;
         product.stock = 100;
+        product.category1 = category1;
+        product.category2 = category2;
         return product;
     }
 }
