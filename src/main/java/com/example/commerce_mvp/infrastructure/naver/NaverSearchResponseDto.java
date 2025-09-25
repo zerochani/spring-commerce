@@ -19,5 +19,7 @@ public class NaverSearchResponseDto {
         private String lprice;
         private String mallName;
         private String productId;
+        private String category1;
+        private String category2;
     }
 }
