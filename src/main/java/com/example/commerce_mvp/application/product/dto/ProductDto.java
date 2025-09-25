@@ -6,17 +6,19 @@ import lombok.Getter;
 @Getter
 public class ProductDto {
 
-    private final Long id;
+    private final Long productId;
     private final String name;
+    private final String imageUrl;
     private final int price;
+    private final String category1;
+    private final String category2;
 
-    private ProductDto(Long id, String name, int price){
-        this.id = id;
-        this.name = name;
-        this.price = price;
-    }
-
-    public static ProductDto from(Product product) {
-        return new ProductDto(product.getId(), product.getName(), product.getPrice());
+    public ProductDto(Product product){
+        this.productId=product.getId();
+        this.name = product.getName();
+        this.imageUrl = product.getImageUrl();
+        this.price = product.getPrice();
+        this.category1 = product.getCategory1();
+        this.category2 = product.getCategory2();
     }
 }
