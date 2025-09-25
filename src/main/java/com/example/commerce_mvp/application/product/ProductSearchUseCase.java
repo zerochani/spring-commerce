@@ -19,8 +19,9 @@ public class ProductSearchUseCase {
     private final NaverApiClient naverApiClient;
     private final ProductRepository productRepository;
 
+    //저장이라는 책임만 함.
     @Transactional
-    public List<ProductDto> searchAndSaveProducts(String query){
+    public void searchAndSaveProducts(String query){
         NaverSearchResponseDto response = naverApiClient.search(query);
         List<Product> productsToSave = response.getItems().stream()
                 .filter(item-> !productRepository.existsByNaverProductId(item.getProductId()))
@@ -30,14 +31,19 @@ public class ProductSearchUseCase {
         if(!productsToSave.isEmpty()){
             productRepository.saveAll(productsToSave);
         }
-        return productRepository.findAll().stream()
-                .map(ProductDto::from)
-                .collect(Collectors.toList());
     }
 
+
     private Product mapItemToProduct(NaverSearchResponseDto.Item item){
-        String title = item.getTitle().replaceAll("<[^>]*>", "");
+        String name = item.getTitle().replaceAll("<[^>]*>", "");
         int price = Integer.parseInt(item.getLprice());
-        return Product.of(title, price, item.getImage(), item.getProductId());
+        return Product.of(
+                name,
+                price,
+                item.getImage(),
+                item.getProductId(),
+                item.getCategory1(),
+                item.getCategory2()
+                );
     }
 }
