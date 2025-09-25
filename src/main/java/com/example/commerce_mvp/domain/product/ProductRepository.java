@@ -1,9 +1,9 @@
 package com.example.commerce_mvp.domain.product;
 
-import java.util.List;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public interface ProductRepository {
-    List<Product> saveAll(List<Product> products);
+@Repository
+public interface ProductRepository extends JpaRepository<Product, Long> {
     boolean existsByNaverProductId(String naverProductId);
-    List<Product> findAll();
 }
