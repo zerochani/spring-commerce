@@ -31,6 +31,12 @@ public class OAuthAttributes {
         if("google".equalsIgnoreCase(registrationId)){
             return ofGoogle(userNameAttributeName, attributes);
         }
+        if("naver".equalsIgnoreCase(registrationId)){
+            return ofNaver(userNameAttributeName, attributes);
+        }
+        if("kakao".equalsIgnoreCase(registrationId)){
+            return ofKakao(userNameAttributeName, attributes);
+        }
         return null;
     }
 
@@ -44,6 +50,33 @@ public class OAuthAttributes {
                 .nameAttributeKey(userNameAttributeName)
                 .build();
     }
+
+    private static OAuthAttributes ofNaver(String userNameAttributeName, Map<String, Object> attributes){
+        Map<String, Object> response = (Map<String, Object>) attributes.get("response");
+        return OAuthAttributes.builder()
+                .username((String) response.get("name"))
+                .email((String) response.get("email"))
+                .provider(SocialProvider.NAVER)
+                .providerId((String) response.get("id"))
+                .attributes(attributes)
+                .nameAttributeKey(userNameAttributeName)
+                .build();
+    }
+
+    private static OAuthAttributes ofKakao(String userNameAttributeName, Map<String, Object> attributes){
+        Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
+        Map<String, Object> kakaoProfile = (Map<String, Object>) kakaoAccount.get("profile");
+
+        return OAuthAttributes.builder()
+                .username((String) kakaoProfile.get("nickname"))
+                .email((String) kakaoAccount.get("email"))
+                .provider(SocialProvider.KAKAO)
+                .providerId(String.valueOf(attributes.get("id")))
+                .attributes(attributes)
+                .nameAttributeKey(userNameAttributeName)
+                .build();
+    }
+
 
     public User toEntity(){
         return User.builder()
