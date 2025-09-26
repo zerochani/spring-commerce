@@ -44,7 +44,8 @@ public class CustomOAuthUserService implements OAuth2UserService<OAuth2UserReque
 
     @Transactional
     public User saveOrUpdate(OAuthAttributes attributes){
-        User user = userRepository.findByProviderAndProviderId(attributes.getProvider(), attributes.getProviderId())
+        User user = userRepository.findByEmail(attributes.getEmail())
+                //이미 존재하는 사용자라면, 이름 정보만 업데이트
                 .map(entity -> entity.update(attributes.getUsername())) //기존 사용자인 경우 이름만 업데이트
                 .orElse(attributes.toEntity()); //신규 사용자인 경우 생성
         return userRepository.save(user);
