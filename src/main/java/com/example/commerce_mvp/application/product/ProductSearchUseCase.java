@@ -35,10 +35,10 @@ public class ProductSearchUseCase {
 
 
     private Product mapItemToProduct(NaverSearchResponseDto.Item item){
-        String name = item.getTitle().replaceAll("<[^>]*>", "");
+        String title = item.getTitle().replaceAll("<[^>]*>", "");
         int price = Integer.parseInt(item.getLprice());
         return Product.of(
-                name,
+                title,
                 price,
                 item.getImage(),
                 item.getProductId(),
