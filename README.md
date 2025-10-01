@@ -59,6 +59,87 @@ graph TD
 
 ---
 
+## 🗄️ ERD
+
+```mermaid
+erDiagram
+    MEMBER ||--o{ ORDERS : "places"
+    MEMBER ||--|{ CART : "has"
+    MEMBER {
+        bigint member_id PK
+        varchar(255) email UK
+        varchar(255) password
+        varchar(255) name
+        varchar(255) address
+        varchar(50) role
+        varchar(50) provider
+        varchar(50) provider_id
+        datetime created_at
+        datetime updated_at
+    }
+
+    ORDERS ||--o{ ORDER_ITEM : "contains"
+    ORDERS ||--|{ PAYMENT : "is paid by"
+    ORDERS {
+        bigint order_id PK
+        bigint member_id FK
+        varchar(255) order_number UK
+        int total_price
+        varchar(50) status
+        datetime created_at
+        datetime updated_at
+    }
+
+    ORDER_ITEM {
+        bigint order_item_id PK
+        bigint order_id FK
+        bigint product_id FK
+        int order_price
+        int quantity
+        datetime created_at
+        datetime updated_at
+    }
+
+    PRODUCT ||--o{ ORDER_ITEM : "included in"
+    PRODUCT ||--o{ CART_ITEM : "added to"
+    PRODUCT {
+        bigint product_id PK
+        varchar(255) name
+        int price
+        int stock
+        varchar(255) image_url
+        varchar(255) naver_product_id
+        datetime created_at
+        datetime updated_at
+    }
+
+    CART ||--o{ CART_ITEM : "contains"
+    CART {
+        bigint cart_id PK
+        bigint member_id FK
+        datetime created_at
+        datetime updated_at
+    }
+
+    CART_ITEM {
+        bigint cart_item_id PK
+        bigint cart_id FK
+        bigint product_id FK
+        int quantity
+        datetime created_at
+        datetime updated_at
+    }
+
+    PAYMENT {
+        bigint payment_id PK
+        bigint order_id FK
+        varchar(255) payment_key UK
+        int amount
+        varchar(50) status
+        datetime created_at
+        datetime updated_at
+    }
+
 ## ✨ 4. 주요 기능
 
 *(현재 서버가 배포되어 있지 않으므로, 각 기능은 GIF나 스크린샷으로 대체하여 보여주는 것을 권장합니다.)*
