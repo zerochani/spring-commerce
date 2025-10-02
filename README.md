@@ -22,8 +22,9 @@
 | :--- | :--- | :--- |
 | **Backend** | `Java 17`, `Spring Boot 3.x`, `Gradle` | 안정적인 개발 환경과 강력한 생태계를 기반으로 백엔드를 구축했습니다. |
 | **Database** | `MySQL 8.0` | 관계형 데이터 관리를 위해 널리 사용되는 MySQL을 선택했습니다. |
-| **Data Access** | `Spring Data JPA` / `Hibernate` | ORM 기술을 활용하여 객체 지향적으로 데이터를 관리하고 생산성을 높였습니다. |
-| **Authentication** | `Spring Security`, `OAuth 2.0`, `JWT` | 소셜 로그인과 토큰 기반 인증을 구현하여 보안성과 사용자 편의성을 모두 확보했습니다. |
+| **Data Access**| `Spring Data JPA` / `Hibernate` | ORM 기술을 활용하여 객체 지향적으로 데이터를 관리하고 생산성을 높였습니다. |
+| **Authentication**|`Spring Security`, `OAuth 2.0`, `JWT` | 소셜 로그인과 토큰 기반 인증을 구현하여 보안성과 사용자 편의성을 모두 확보했습니다. |
+| **Testing** | `JUnit 5`, `Mockito` | **`Mockito`를 이용한 단위 테스트로 서비스 로직의 안정성을 검증했습니다.** |
 
 ---
 
