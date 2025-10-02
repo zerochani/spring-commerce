@@ -2,7 +2,7 @@
 
 **DDD와 클린 아키텍처를 적용하여 확장성과 테스트 용이성을 확보한 커머스 백엔드 MVP**
 
-![Java](https://img.shields.io/badge/Java-17-orange) ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-green) ![Spring Security](https://img.shields.io/badge/Spring%20Security-6.x-blue) ![JPA](https://img.shields.io/badge/JPA-Hibernate-lightgrey) ![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1) ![JWT](https://img.shields.io/badge/JWT-Authentication-black)
+![Java](https://img.shields.io/badge/Java-17-orange) ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-green) ![Spring Security](https://img.shields.io/badge/Spring%20Security-6.x-blue) ![JPA](https://img.shields.io/badge/JPA-Hibernate-lightgrey) ![JUnit 5](https://img.shields.io/badge/JUnit-5-blue?logo=junit5) ![Mockito](https://img.shields.io/badge/Mockito-Mocking-4EAA5B?logo=mockito) ![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1) ![JWT](https://img.shields.io/badge/JWT-Authentication-black)
 
 ---
 
