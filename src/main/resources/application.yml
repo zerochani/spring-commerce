@@ -60,3 +60,8 @@ naver:
   api:
     client-id: ${NAVER_API_CLIENT_ID}
     client-secret: ${NAVER_API_CLIENT_SECRET}
+
+jwt:
+  secret: "ajdfkljlajdfkj123j1oiie23kfjlkejfe8fdjlkflajfljakfd"
+  access-token-expiration: 3600000
+  refresh-token-expiration: 1209600000
