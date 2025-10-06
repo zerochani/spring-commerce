@@ -2,7 +2,7 @@ package com.example.commerce_mvp.config;
 
 
 
-import com.example.commerce_mvp.application.auth.TokenInfo;
+import com.example.commerce_mvp.application.auth.dto.TokenInfo;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -39,8 +39,8 @@ public class JwtTokenProvider {
         this.refreshTokenExpiration = refreshTokenExpiration;
     }
 
-    public TokenInfo generateToken(Authentication authentication){
-        String authorities = authentication.getAuthorities().stream()
+    public TokenInfo generateToken(String subject, Collection<? extends GrantedAuthority> authorities){
+        String authoritiesString = authorities.stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
 
@@ -49,8 +49,8 @@ public class JwtTokenProvider {
         //Access Token 생성
         Date accessTokenExpiresIn = new Date(now + accessTokenExpiration);
         String accessToken = Jwts.builder()
-                .setSubject(authentication.getName())
-                .claim("auth", authorities)
+                .setSubject(subject)
+                .claim("auth", authoritiesString)
                 .setExpiration(accessTokenExpiresIn)
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();

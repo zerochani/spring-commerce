@@ -1,4 +1,4 @@
-package com.example.commerce_mvp.application.auth;
+package com.example.commerce_mvp.application.auth.dto;
 
 
 import lombok.AllArgsConstructor;

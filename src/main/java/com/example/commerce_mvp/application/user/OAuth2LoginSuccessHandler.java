@@ -1,8 +1,9 @@
 package com.example.commerce_mvp.application.user;
 
 
-import com.example.commerce_mvp.application.auth.TokenInfo;
+import com.example.commerce_mvp.application.auth.dto.TokenInfo;
 import com.example.commerce_mvp.application.auth.dto.AccessTokenResponseDto;
+import com.example.commerce_mvp.application.user.dto.OAuthAttributes;
 import com.example.commerce_mvp.config.JwtTokenProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
@@ -13,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
@@ -32,9 +35,15 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         log.info("OAuth2 Login 성공!");
 
+        OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
+        String registrationId = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
+
+        OAuthAttributes attributes = OAuthAttributes.of(registrationId, "sub", oAuth2User.getAttributes());
+        String email = attributes.getEmail();
+
         //토큰 생성
-        TokenInfo tokenInfo = jwtTokenProvider.generateToken(authentication);
-        log.info("발급된 Access Token: {}", tokenInfo.getAccessToken());
+        TokenInfo tokenInfo = jwtTokenProvider.generateToken(email, authentication.getAuthorities());
+        log.info("발급된 Access Token (Subject: {}): {}", email, tokenInfo.getAccessToken());
 
         //refresh token을 httponly 쿠키에 담기
         Cookie refreshTokenCookie = new Cookie("refresh_token", tokenInfo.getRefreshToken());
