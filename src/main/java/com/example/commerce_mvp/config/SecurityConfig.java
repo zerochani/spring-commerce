@@ -31,6 +31,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         //아래 경로들은 인증 없이 접근 허용
                         .requestMatchers("/", "/login/**", "/oauth2/**").permitAll()
+                        .requestMatchers("/api/auth/refresh", "/api/auth/logout").permitAll()
                         //아래 경로들은 인증이 필요
                         .requestMatchers("/api/**").authenticated()
                         //나머지 경로들은 모두 허용

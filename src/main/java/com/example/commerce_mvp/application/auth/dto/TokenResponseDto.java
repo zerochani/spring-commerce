@@ -1,15 +1,16 @@
 package com.example.commerce_mvp.application.auth.dto;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-@Builder
-@Data
+@Getter
+@NoArgsConstructor
 @AllArgsConstructor
-public class TokenInfo {
-    private String grantType;
+@Builder
+public class TokenResponseDto {
     private String accessToken;
     private String refreshToken;
+    private String grantType;
 }

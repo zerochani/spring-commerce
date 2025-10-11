@@ -2,7 +2,7 @@ package com.example.commerce_mvp.config;
 
 
 
-import com.example.commerce_mvp.application.auth.dto.TokenInfo;
+import com.example.commerce_mvp.application.auth.dto.TokenResponseDto;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -39,7 +39,7 @@ public class JwtTokenProvider {
         this.refreshTokenExpiration = refreshTokenExpiration;
     }
 
-    public TokenInfo generateToken(String subject, Collection<? extends GrantedAuthority> authorities){
+    public TokenResponseDto generateToken(String subject, Collection<? extends GrantedAuthority> authorities){
         String authoritiesString = authorities.stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
@@ -61,7 +61,7 @@ public class JwtTokenProvider {
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 
-        return TokenInfo.builder()
+        return TokenResponseDto.builder()
                 .grantType("Bearer")
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
@@ -103,6 +103,55 @@ public class JwtTokenProvider {
             log.info("JWT claims string is empty.", e);
         }
         return false;
+    }
+
+    // Refresh Token 검증 메서드
+    public boolean validateRefreshToken(String refreshToken) {
+        try {
+            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(refreshToken);
+            return true;
+        } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
+            log.info("Invalid Refresh Token", e);
+        } catch (ExpiredJwtException e) {
+            log.info("Expired Refresh Token", e);
+        } catch (UnsupportedJwtException e) {
+            log.info("Unsupported Refresh Token", e);
+        } catch (IllegalArgumentException e) {
+            log.info("Refresh Token claims string is empty.", e);
+        }
+        return false;
+    }
+
+    // Refresh Token으로부터 사용자 정보 추출
+    public String getSubjectFromRefreshToken(String refreshToken) {
+        Claims claims = parseClaims(refreshToken);
+        return claims.getSubject();
+    }
+
+    // Access Token 재발급
+    public String generateAccessToken(String subject, Collection<? extends GrantedAuthority> authorities) {
+        String authoritiesString = authorities.stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
+
+        long now = (new Date()).getTime();
+        Date accessTokenExpiresIn = new Date(now + accessTokenExpiration);
+
+        return Jwts.builder()
+                .setSubject(subject)
+                .claim("auth", authoritiesString)
+                .setExpiration(accessTokenExpiresIn)
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    // 새로운 Refresh Token 생성
+    public String generateRefreshToken() {
+        long now = (new Date()).getTime();
+        return Jwts.builder()
+                .setExpiration(new Date(now + refreshTokenExpiration))
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
     }
 
     private Claims parseClaims(String accessToken) {
