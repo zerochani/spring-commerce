@@ -62,6 +62,6 @@ naver:
     client-secret: ${NAVER_API_CLIENT_SECRET}
 
 jwt:
-  secret: "ajdfkljlajdfkj123j1oiie23kfjlkejfe8fdjlkflajfljakfd"
+  secret: "YWpkZmtsamxhamRma2oxMjNqMW9paWUyM2tmanJrZWpmZThmZGpsa2ZsYWpmbGphZmQ="
   access-token-expiration: 3600000
   refresh-token-expiration: 1209600000

@@ -61,4 +61,16 @@ naver:
 
 # JWT secret은 반드시 32바이트(256비트) 이상이어야 합니다.
 jwt:
-  secret: "ThisIsA_TestSecretKeyForMySpringBootProject_1234567890"
+  secret: "VGhpc0lzQV9UZXN0U2VjcmV0S2V5Rm9yTXlTcHJpbmdCb290UHJvamVjdF8xMjM0NTY3ODkw"
+  access-token-expiration: 3600000
+  refresh-token-expiration: 1209600000
+
+# 환경 변수 대체값 설정 (테스트용)
+DB_PASSWORD: "test-password"
+GOOGLE_CLIENT_ID: "test-google-client-id"
+GOOGLE_CLIENT_SECRET: "test-google-client-secret"
+NAVER_LOGIN_CLIENT_ID: "test-naver-login-client-id"
+NAVER_LOGIN_CLIENT_SECRET: "test-naver-login-client-secret"
+KAKAO_CLIENT_ID: "test-kakao-client-id"
+NAVER_API_CLIENT_ID: "test-naver-api-client-id"
+NAVER_API_CLIENT_SECRET: "test-naver-api-client-secret"
