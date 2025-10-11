@@ -1,7 +1,7 @@
 package com.example.commerce_mvp.application.user;
 
 
-import com.example.commerce_mvp.application.auth.dto.TokenInfo;
+import com.example.commerce_mvp.application.auth.dto.TokenResponseDto;
 import com.example.commerce_mvp.application.auth.dto.AccessTokenResponseDto;
 import com.example.commerce_mvp.application.user.dto.OAuthAttributes;
 import com.example.commerce_mvp.config.JwtTokenProvider;
@@ -42,7 +42,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         String email = attributes.getEmail();
 
         //토큰 생성
-        TokenInfo tokenInfo = jwtTokenProvider.generateToken(email, authentication.getAuthorities());
+        TokenResponseDto tokenInfo = jwtTokenProvider.generateToken(email, authentication.getAuthorities());
         log.info("발급된 Access Token (Subject: {}): {}", email, tokenInfo.getAccessToken());
 
         //refresh token을 httponly 쿠키에 담기

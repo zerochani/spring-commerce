@@ -1,5 +1,7 @@
 package com.example.commerce_mvp.application.user;
 
+import com.example.commerce_mvp.application.common.exception.BusinessException;
+import com.example.commerce_mvp.application.common.exception.ErrorCode;
 import com.example.commerce_mvp.application.user.dto.UserProfileResponseDto;
 import com.example.commerce_mvp.domain.user.User;
 import com.example.commerce_mvp.domain.user.UserRepository;
@@ -15,7 +17,7 @@ public class UserService {
 
     public UserProfileResponseDto getMyProfile(String email){
         User user = userRepository.findByEmail(email)
-                .orElseThrow(()->new IllegalArgumentException("User not found with email: " + email));
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND, "User not found with email: " + email));
         return UserProfileResponseDto.from(user);
     }
 }
