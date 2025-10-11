@@ -3,7 +3,7 @@ package com.example.commerce_mvp.presentation.auth;
 import com.example.commerce_mvp.application.auth.AuthService;
 import com.example.commerce_mvp.application.auth.dto.AccessTokenOnlyResponseDto;
 import com.example.commerce_mvp.application.auth.dto.RefreshTokenRequestDto;
-import com.example.commerce_mvp.application.auth.dto.TokenRefreshResultDto;
+import com.example.commerce_mvp.application.auth.dto.TokenResponseDto;
 import com.example.commerce_mvp.application.common.exception.BusinessException;
 import com.example.commerce_mvp.application.common.exception.ErrorCode;
 import jakarta.servlet.http.Cookie;
@@ -57,7 +57,7 @@ public class AuthController {
         }
 
         // 토큰 재발급
-        TokenRefreshResultDto result = authService.refreshToken(refreshToken);
+        TokenResponseDto result = authService.refreshToken(refreshToken);
 
         // 새로운 Refresh Token을 HttpOnly 쿠키에 설정
         Cookie refreshTokenCookie = new Cookie("refresh_token", result.getRefreshToken());

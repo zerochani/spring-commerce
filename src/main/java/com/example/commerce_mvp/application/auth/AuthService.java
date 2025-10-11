@@ -1,7 +1,6 @@
 package com.example.commerce_mvp.application.auth;
 
 import com.example.commerce_mvp.application.auth.dto.AccessTokenOnlyResponseDto;
-import com.example.commerce_mvp.application.auth.dto.TokenRefreshResultDto;
 import com.example.commerce_mvp.application.auth.dto.TokenResponseDto;
 import com.example.commerce_mvp.application.common.exception.BusinessException;
 import com.example.commerce_mvp.application.common.exception.ErrorCode;
@@ -31,7 +30,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
 
-    public TokenRefreshResultDto refreshToken(String refreshToken) {
+    public TokenResponseDto refreshToken(String refreshToken) {
         // DB에서 Refresh Token 조회 및 검증
         RefreshToken storedRefreshToken = refreshTokenRepository.findByToken(refreshToken)
                 .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_REFRESH_TOKEN, "유효하지 않은 Refresh Token입니다."));
@@ -75,7 +74,7 @@ public class AuthService {
 
         log.info("토큰 재발급 완료 - 사용자: {}", storedRefreshToken.getUserEmail());
 
-        return TokenRefreshResultDto.builder()
+        return TokenResponseDto.builder()
                 .accessToken(newAccessToken)
                 .refreshToken(newRefreshToken)
                 .grantType("Bearer")
