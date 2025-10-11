@@ -1,8 +1,9 @@
 package com.example.commerce_mvp.application.user;
 
 
+import com.example.commerce_mvp.application.auth.AuthService;
 import com.example.commerce_mvp.application.auth.dto.TokenResponseDto;
-import com.example.commerce_mvp.application.auth.dto.AccessTokenResponseDto;
+import com.example.commerce_mvp.application.auth.dto.AccessTokenOnlyResponseDto;
 import com.example.commerce_mvp.application.user.dto.OAuthAttributes;
 import com.example.commerce_mvp.config.JwtTokenProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,6 +27,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     private final JwtTokenProvider jwtTokenProvider;
+    private final AuthService authService;
     private final ObjectMapper objectMapper;
 
     @Value("${jwt.refresh-token-expiration}")
@@ -45,6 +47,9 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         TokenResponseDto tokenInfo = jwtTokenProvider.generateToken(email, authentication.getAuthorities());
         log.info("발급된 Access Token (Subject: {}): {}", email, tokenInfo.getAccessToken());
 
+        // Refresh Token을 DB에 저장
+        authService.saveRefreshToken(tokenInfo.getRefreshToken(), email);
+
         //refresh token을 httponly 쿠키에 담기
         Cookie refreshTokenCookie = new Cookie("refresh_token", tokenInfo.getRefreshToken());
         refreshTokenCookie.setHttpOnly(true);
@@ -57,7 +62,10 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        AccessTokenResponseDto accessTokenDto = new AccessTokenResponseDto(tokenInfo.getAccessToken());
+        AccessTokenOnlyResponseDto accessTokenDto = AccessTokenOnlyResponseDto.builder()
+                .accessToken(tokenInfo.getAccessToken())
+                .grantType("Bearer")
+                .build();
         String result = objectMapper.writeValueAsString(accessTokenDto);
         response.getWriter().write(result);
 
