@@ -2,7 +2,7 @@
 
 **DDD와 클린 아키텍처를 적용하여 확장성과 테스트 용이성을 확보한 커머스 백엔드 MVP**
 
-![Java](https://img.shields.io/badge/Java-17-orange) ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-green) ![Spring Security](https://img.shields.io/badge/Spring%20Security-6.x-blue) ![JPA](https://img.shields.io/badge/JPA-Hibernate-lightgrey) ![JUnit 5](https://img.shields.io/badge/JUnit-5-blue?logo=junit5) ![Mockito](https://img.shields.io/badge/Mockito-Mocking-4EAA5B?logo=mockito) ![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1) ![JWT](https://img.shields.io/badge/JWT-Authentication-black)
+![Java](https://img.shields.io/badge/Java-17-orange) ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-green) ![Spring Security](https://img.shields.io/badge/Spring%20Security-6.x-blue) ![JPA](https://img.shields.io/badge/JPA-Hibernate-lightgrey) ![JUnit 5](https://img.shields.io/badge/JUnit-5-blue?logo=junit5) ![Mockito](https://img.shields.io/badge/Mockito-Mocking-4EAA5B?logo=mockito) ![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1) ![JWT](https://img.shields.io/badge/JWT-Authentication-black) ![Validation](https://img.shields.io/badge/Validation-Spring%20Boot-green) ![Exception%20Handling](https://img.shields.io/badge/Exception%20Handling-Global%20Handler-red)
 
 ---
 
@@ -71,6 +71,7 @@ graph TD
 ### 1) 소셜 로그인 및 JWT 기반 Stateless 인증
 -   OAuth 2.0 계정 통합: Google, Naver, Kakao 로그인 시 동일 이메일은 하나의 계정으로 통합하여 중복 가입을 방지합니다.
 -   JWT 토큰 발급: 로그인 성공 시, Access Token과 Refresh Token을 발급합니다.
+-   **토큰 재발급 시스템**: Access Token 만료 시 Refresh Token을 이용한 자동 갱신 API를 구현했습니다.
 -   안전한 토큰 관리: XSS 공격 방지를 위해 가장 중요한 Refresh Token은 HttpOnly 쿠키에 저장하고, 상대적으로 안전한 Access Token만 클라이언트에 전달하여 보안을 강화했습니다.
 -   API 접근 제어: JwtAuthenticationFilter를 통해 API 요청 헤더의 Access Token을 검증하고, 유효한 토큰을 가진 사용자만 보호된 리소스에 접근할 수 있도록 인가 처리를 구현했습니다.
 
@@ -81,6 +82,16 @@ graph TD
 -   데이터가 많아져도 일정한 조회 성능을 보장하여 사용자에게 끊김 없는 탐색 경험을 제공합니다.
 
 ![상품 조회 기능 GIF](https://user-images.github.com/your-username/your-repo/assets/product-scroll.gif)
+
+### 3) 전역 예외 처리 및 표준화된 에러 응답
+-   **GlobalExceptionHandler**를 구현하여 일관된 에러 응답 형식을 제공합니다.
+-   **BusinessException**과 **ErrorCode** 체계를 구축하여 비즈니스 로직 예외를 체계적으로 관리합니다.
+-   인증, 검증, 서버 오류 등 다양한 예외 상황에 대한 적절한 HTTP 상태 코드와 에러 메시지를 반환합니다.
+
+### 4) 입력값 검증 및 유효성 검사
+-   **Spring Validation**을 활용하여 API 입력값에 대한 검증을 강화했습니다.
+-   DTO에 `@NotBlank`, `@Min`, `@Max` 등의 어노테이션을 적용하여 데이터 무결성을 보장합니다.
+-   검증 실패 시 명확한 에러 메시지를 제공하여 개발자와 사용자 경험을 개선했습니다.
 
 ---
 
@@ -104,20 +115,31 @@ graph TD
 -   **문제**: 로컬 MySQL DB와 환경 변수에 의존하는 테스트는 다른 환경에서의 실행을 보장할 수 없으며, 빌드 실패의 원인이 되었습니다.
 -   **해결**: **src/test/resources**에 테스트 전용 application.yml을 구성하고, H2 인메모리 데이터베이스를 사용하도록 설정했습니다. 이를 통해 외부 환경에 의존하지 않는, 빠르고 독립적인 테스트 환경을 구축하여 빌드 안정성을 확보했습니다.
 
+### Problem & Solution 5: JWT 토큰 재발급 시스템 구현
+-   **문제**: Access Token의 짧은 만료 시간으로 인한 사용자 경험 저하와 보안성 확보 사이의 균형이 필요했습니다.
+-   **해결**: Refresh Token을 이용한 Access Token 재발급 시스템을 구현했습니다. HttpOnly 쿠키를 통한 안전한 Refresh Token 관리와 함께, 토큰 재발급 시 새로운 Refresh Token도 함께 발급하여 보안성을 강화했습니다.
+
+### Problem & Solution 6: 일관된 에러 처리 시스템 구축
+-   **문제**: 다양한 예외 상황에 대한 일관되지 않은 에러 응답과 개발자 경험의 불편함이 있었습니다.
+-   **해결**: GlobalExceptionHandler를 구현하여 모든 예외를 중앙에서 처리하고, BusinessException과 ErrorCode 체계를 통해 일관된 에러 응답 형식을 제공했습니다. 이를 통해 API 사용자와 개발자 모두에게 명확한 에러 정보를 제공할 수 있게 되었습니다.
+
 ---
 
 ## 📈 7. 결과 및 성과
 
 -   **유지보수성이 높은 코드 구조 설계**: 클린 아키텍처를 적용하여 각 계층이 명확히 분리된, 테스트와 기능 확장이 용이한 백엔드 시스템을 구축했습니다.
 -   **안전하고 편리한 인증 시스템 구현**: OAuth 2.0과 JWT의 동작 원리를 깊이 이해하고, Stateless 인증, 토큰 재발급을 고려한 보안 모델까지 적용하여 실무 수준의 인증 서버 로직을 성공적으로 구현했습니다.
--   **실무적인 문제 해결 능력 입증**: 단순 기능 구현을 넘어, 페이지네이션 성능 최적화, 계정 통합, 테스트 환경 구축 등 실제 서비스에서 마주할 수 있는 문제들을 주도적으로 정의하고 해결했습니다.
+-   **견고한 에러 처리 시스템**: GlobalExceptionHandler와 BusinessException 체계를 통해 일관된 에러 응답을 제공하고, 개발자 경험을 크게 개선했습니다.
+-   **입력값 검증 강화**: Spring Validation을 활용하여 데이터 무결성을 보장하고, API의 안정성을 크게 향상시켰습니다.
+-   **실무적인 문제 해결 능력 입증**: 단순 기능 구현을 넘어, 페이지네이션 성능 최적화, 계정 통합, 테스트 환경 구축, 토큰 재발급 시스템 등 실제 서비스에서 마주할 수 있는 문제들을 주도적으로 정의하고 해결했습니다.
 
 ---
 
 ## 📚 8. 프로젝트를 통해 배운 점 및 향후 계획
 
--   **배운 점**: 도메인을 중심으로 설계하는 것이 왜 중요한지, 그리고 외부 기술에 의존하지 않는 순수한 비즈니스 로직을 만드는 것이 시스템의 수명을 어떻게 늘려주는지 체감할 수 있었습니다.
+-   **배운 점**: 도메인을 중심으로 설계하는 것이 왜 중요한지, 그리고 외부 기술에 의존하지 않는 순수한 비즈니스 로직을 만드는 것이 시스템의 수명을 어떻게 늘려주는지 체감할 수 있었습니다. 또한 일관된 에러 처리와 입력값 검증이 API의 안정성과 사용자 경험에 미치는 영향을 깊이 이해할 수 있었습니다.
 -   **향후 계획**:
-    1.  **Refresh Token을 이용한 Access Token 재발급 로직 구현**: 현재는 토큰 발급만 구현된 상태로, Access Token 만료 시 Refresh Token으로 자동 갱신하는 API를 구현할 예정입니다.
-    2.  **단위 테스트 및 통합 테스트 코드 작성**: 설계한 구조의 이점을 살려, 각 계층별로 견고한 테스트 코드를 작성하여 시스템의 안정성을 높일 것입니다.
-    3.  **주문/결제 기능 구현**: 커머스의 핵심 기능인 주문 및 결제 로직을 추가하여 프로젝트를 완성할 계획입니다.
+    1.  **단위 테스트 및 통합 테스트 코드 작성**: 설계한 구조의 이점을 살려, 각 계층별로 견고한 테스트 코드를 작성하여 시스템의 안정성을 높일 것입니다.
+    2.  **주문/결제 기능 구현**: 커머스의 핵심 기능인 주문 및 결제 로직을 추가하여 프로젝트를 완성할 계획입니다.
+    3.  **캐싱 시스템 도입**: Redis를 활용한 캐싱으로 성능을 최적화할 예정입니다.
+    4.  **API 문서화**: Swagger/OpenAPI를 통한 자동 문서 생성으로 개발자 경험을 개선할 계획입니다.
