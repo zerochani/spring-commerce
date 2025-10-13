@@ -1,7 +1,222 @@
 .
+├── .cursor
+│   └── rules
+├── .env
+├── .gitattributes
+├── .gitignore
+├── .gradle
+│   ├── 8.14.3
+│   │   ├── checksums
+│   │   │   ├── checksums.lock
+│   │   │   ├── md5-checksums.bin
+│   │   │   └── sha1-checksums.bin
+│   │   ├── executionHistory
+│   │   │   ├── executionHistory.bin
+│   │   │   └── executionHistory.lock
+│   │   ├── expanded
+│   │   ├── fileChanges
+│   │   │   └── last-build.bin
+│   │   ├── fileHashes
+│   │   │   ├── fileHashes.bin
+│   │   │   ├── fileHashes.lock
+│   │   │   └── resourceHashesCache.bin
+│   │   ├── gc.properties
+│   │   └── vcsMetadata
+│   ├── buildOutputCleanup
+│   │   ├── buildOutputCleanup.lock
+│   │   ├── cache.properties
+│   │   └── outputFiles.bin
+│   ├── file-system.probe
+│   └── vcs-1
+│       └── gc.properties
+├── .idea
+│   ├── .gitignore
+│   ├── compiler.xml
+│   ├── deployment.xml
+│   ├── git_toolbox_prj.xml
+│   ├── gradle.xml
+│   ├── misc.xml
+│   ├── modules
+│   │   ├── commerce-mvp.main.iml
+│   │   └── commerce-mvp.test.iml
+│   ├── modules.xml
+│   ├── sshConfigs.xml
+│   ├── vcs.xml
+│   ├── webServers.xml
+│   └── workspace.xml
+├── build
+│   ├── classes
+│   │   └── java
+│   │       ├── main
+│   │       │   └── com
+│   │       │       └── example
+│   │       │           └── commerce_mvp
+│   │       │               ├── application
+│   │       │               │   ├── auth
+│   │       │               │   │   ├── AuthService.class
+│   │       │               │   │   └── dto
+│   │       │               │   │       ├── AccessTokenOnlyResponseDto.class
+│   │       │               │   │       ├── AccessTokenOnlyResponseDto$AccessTokenOnlyResponseDtoBuilder.class
+│   │       │               │   │       ├── RefreshTokenRequestDto.class
+│   │       │               │   │       ├── TokenResponseDto.class
+│   │       │               │   │       └── TokenResponseDto$TokenResponseDtoBuilder.class
+│   │       │               │   ├── common
+│   │       │               │   │   ├── dto
+│   │       │               │   │   │   ├── ErrorResponse.class
+│   │       │               │   │   │   ├── ErrorResponse$ErrorResponseBuilder.class
+│   │       │               │   │   │   └── SliceResponse.class
+│   │       │               │   │   └── exception
+│   │       │               │   │       ├── BusinessException.class
+│   │       │               │   │       └── ErrorCode.class
+│   │       │               │   ├── order
+│   │       │               │   │   ├── dto
+│   │       │               │   │   │   ├── CreateOrderRequestDto.class
+│   │       │               │   │   │   ├── CreateOrderRequestDto$CreateOrderRequestDtoBuilder.class
+│   │       │               │   │   │   ├── CreateOrderRequestDto$OrderItemRequestDto.class
+│   │       │               │   │   │   ├── CreateOrderRequestDto$OrderItemRequestDto$OrderItemRequestDtoBuilder.class
+│   │       │               │   │   │   ├── OrderResponseDto.class
+│   │       │               │   │   │   ├── OrderResponseDto$OrderItemResponseDto.class
+│   │       │               │   │   │   ├── OrderResponseDto$OrderItemResponseDto$OrderItemResponseDtoBuilder.class
+│   │       │               │   │   │   └── OrderResponseDto$OrderResponseDtoBuilder.class
+│   │       │               │   │   └── OrderService.class
+│   │       │               │   ├── product
+│   │       │               │   │   ├── dto
+│   │       │               │   │   │   └── ProductDto.class
+│   │       │               │   │   ├── ProductSearchUseCase.class
+│   │       │               │   │   └── ProductService.class
+│   │       │               │   └── user
+│   │       │               │       ├── CustomOAuthUserService.class
+│   │       │               │       ├── dto
+│   │       │               │       │   ├── OAuthAttributes.class
+│   │       │               │       │   ├── OAuthAttributes$OAuthAttributesBuilder.class
+│   │       │               │       │   ├── UserProfileResponseDto.class
+│   │       │               │       │   └── UserProfileResponseDto$UserProfileResponseDtoBuilder.class
+│   │       │               │       ├── OAuth2LoginSuccessHandler.class
+│   │       │               │       └── UserService.class
+│   │       │               ├── CommerceMvpApplication.class
+│   │       │               ├── config
+│   │       │               │   ├── JwtAuthenticationFilter.class
+│   │       │               │   ├── JwtTokenProvider.class
+│   │       │               │   └── SecurityConfig.class
+│   │       │               ├── domain
+│   │       │               │   ├── auth
+│   │       │               │   │   ├── RefreshToken.class
+│   │       │               │   │   ├── RefreshToken$RefreshTokenBuilder.class
+│   │       │               │   │   └── RefreshTokenRepository.class
+│   │       │               │   ├── order
+│   │       │               │   │   ├── Order.class
+│   │       │               │   │   ├── Order$OrderBuilder.class
+│   │       │               │   │   ├── OrderItem.class
+│   │       │               │   │   ├── OrderItem$OrderItemBuilder.class
+│   │       │               │   │   ├── OrderRepository.class
+│   │       │               │   │   └── OrderStatus.class
+│   │       │               │   ├── product
+│   │       │               │   │   ├── Product.class
+│   │       │               │   │   └── ProductRepository.class
+│   │       │               │   └── user
+│   │       │               │       ├── SocialProvider.class
+│   │       │               │       ├── User.class
+│   │       │               │       ├── User$UserBuilder.class
+│   │       │               │       ├── UserRepository.class
+│   │       │               │       └── UserRole.class
+│   │       │               ├── infrastructure
+│   │       │               │   └── naver
+│   │       │               │       ├── NaverApiClient.class
+│   │       │               │       ├── NaverSearchResponseDto.class
+│   │       │               │       └── NaverSearchResponseDto$Item.class
+│   │       │               └── presentation
+│   │       │                   ├── auth
+│   │       │                   │   └── AuthController.class
+│   │       │                   ├── common
+│   │       │                   │   └── GlobalExceptionHandler.class
+│   │       │                   ├── order
+│   │       │                   │   └── OrderController.class
+│   │       │                   ├── product
+│   │       │                   │   └── ProductController.class
+│   │       │                   └── user
+│   │       │                       └── UserController.class
+│   │       └── test
+│   │           └── com
+│   │               └── example
+│   │                   └── commerce_mvp
+│   │                       ├── application
+│   │                       │   └── product
+│   │                       │       └── ProductSearchUseCaseTest.class
+│   │                       └── CommerceMvpApplicationTests.class
+│   ├── generated
+│   │   └── sources
+│   │       ├── annotationProcessor
+│   │       │   └── java
+│   │       │       ├── main
+│   │       │       └── test
+│   │       └── headers
+│   │           └── java
+│   │               ├── main
+│   │               └── test
+│   ├── libs
+│   │   ├── commerce-mvp-0.0.1-SNAPSHOT-plain.jar
+│   │   └── commerce-mvp-0.0.1-SNAPSHOT.jar
+│   ├── reports
+│   │   ├── problems
+│   │   │   └── problems-report.html
+│   │   └── tests
+│   │       └── test
+│   │           ├── classes
+│   │           │   ├── com.example.commerce_mvp.application.product.ProductSearchUseCaseTest.html
+│   │           │   └── com.example.commerce_mvp.CommerceMvpApplicationTests.html
+│   │           ├── css
+│   │           │   ├── base-style.css
+│   │           │   └── style.css
+│   │           ├── index.html
+│   │           ├── js
+│   │           │   └── report.js
+│   │           └── packages
+│   │               ├── com.example.commerce_mvp.application.product.html
+│   │               └── com.example.commerce_mvp.html
+│   ├── resolvedMainClassName
+│   ├── resources
+│   │   ├── main
+│   │   │   ├── application.yml
+│   │   │   ├── static
+│   │   │   │   └── index.html
+│   │   │   └── templates
+│   │   └── test
+│   │       └── application.yml
+│   ├── test-results
+│   │   └── test
+│   │       ├── binary
+│   │       │   ├── output.bin
+│   │       │   ├── output.bin.idx
+│   │       │   └── results.bin
+│   │       ├── TEST-com.example.commerce_mvp.application.product.ProductSearchUseCaseTest.xml
+│   │       └── TEST-com.example.commerce_mvp.CommerceMvpApplicationTests.xml
+│   └── tmp
+│       ├── bootJar
+│       │   └── MANIFEST.MF
+│       ├── compileJava
+│       │   ├── compileTransaction
+│       │   │   ├── backup-dir
+│       │   │   └── stash-dir
+│       │   │       ├── Product.class.uniqueId1
+│       │   │       ├── ProductController.class.uniqueId2
+│       │   │       ├── ProductDto.class.uniqueId0
+│       │   │       ├── ProductRepository.class.uniqueId4
+│       │   │       ├── ProductSearchUseCase.class.uniqueId5
+│       │   │       └── ProductService.class.uniqueId3
+│       │   └── previous-compilation-data.bin
+│       ├── compileTestJava
+│       │   ├── compileTransaction
+│       │   │   ├── backup-dir
+│       │   │   └── stash-dir
+│       │   │       └── ProductSearchUseCaseTest.class.uniqueId0
+│       │   └── previous-compilation-data.bin
+│       ├── jar
+│       │   └── MANIFEST.MF
+│       └── test
 ├── build.gradle
 ├── docs
-│   └── Erd.png
+│   ├── Erd.png
+│   └── PRD.md
 ├── gradle
 │   └── wrapper
 │       ├── gradle-wrapper.jar
@@ -31,6 +246,11 @@
 │   │   │               │   │   └── exception
 │   │   │               │   │       ├── BusinessException.java
 │   │   │               │   │       └── ErrorCode.java
+│   │   │               │   ├── order
+│   │   │               │   │   ├── dto
+│   │   │               │   │   │   ├── CreateOrderRequestDto.java
+│   │   │               │   │   │   └── OrderResponseDto.java
+│   │   │               │   │   └── OrderService.java
 │   │   │               │   ├── product
 │   │   │               │   │   ├── dto
 │   │   │               │   │   │   └── ProductDto.java
@@ -52,6 +272,11 @@
 │   │   │               │   ├── auth
 │   │   │               │   │   ├── RefreshToken.java
 │   │   │               │   │   └── RefreshTokenRepository.java
+│   │   │               │   ├── order
+│   │   │               │   │   ├── Order.java
+│   │   │               │   │   ├── OrderItem.java
+│   │   │               │   │   ├── OrderRepository.java
+│   │   │               │   │   └── OrderStatus.java
 │   │   │               │   ├── product
 │   │   │               │   │   ├── Product.java
 │   │   │               │   │   └── ProductRepository.java
@@ -70,6 +295,8 @@
 │   │   │                   │   └── AuthController.java
 │   │   │                   ├── common
 │   │   │                   │   └── GlobalExceptionHandler.java
+│   │   │                   ├── order
+│   │   │                   │   └── OrderController.java
 │   │   │                   ├── product
 │   │   │                   │   └── ProductController.java
 │   │   │                   └── user
@@ -92,4 +319,4 @@
 │           └── application.yml
 └── tree.txt
 
-44 directories, 49 files
+140 directories, 180 files
