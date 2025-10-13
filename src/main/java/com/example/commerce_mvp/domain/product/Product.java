@@ -34,4 +34,25 @@ public class Product {
         product.category2 = category2;
         return product;
     }
+
+    // 재고 업데이트
+    public void updateStock(int newStock) {
+        if (newStock < 0) {
+            throw new IllegalArgumentException("재고는 0보다 작을 수 없습니다.");
+        }
+        this.stock = newStock;
+    }
+
+    // 재고 차감
+    public void decreaseStock(int quantity) {
+        if (this.stock < quantity) {
+            throw new IllegalArgumentException("재고가 부족합니다.");
+        }
+        this.stock -= quantity;
+    }
+
+    // 재고 증가
+    public void increaseStock(int quantity) {
+        this.stock += quantity;
+    }
 }

@@ -1,0 +1,95 @@
+.
+├── build.gradle
+├── docs
+│   └── Erd.png
+├── gradle
+│   └── wrapper
+│       ├── gradle-wrapper.jar
+│       └── gradle-wrapper.properties
+├── gradlew
+├── gradlew.bat
+├── HELP.md
+├── README.md
+├── settings.gradle
+├── src
+│   ├── main
+│   │   ├── java
+│   │   │   └── com
+│   │   │       └── example
+│   │   │           └── commerce_mvp
+│   │   │               ├── application
+│   │   │               │   ├── auth
+│   │   │               │   │   ├── AuthService.java
+│   │   │               │   │   └── dto
+│   │   │               │   │       ├── AccessTokenOnlyResponseDto.java
+│   │   │               │   │       ├── RefreshTokenRequestDto.java
+│   │   │               │   │       └── TokenResponseDto.java
+│   │   │               │   ├── common
+│   │   │               │   │   ├── dto
+│   │   │               │   │   │   ├── ErrorResponse.java
+│   │   │               │   │   │   └── SliceResponse.java
+│   │   │               │   │   └── exception
+│   │   │               │   │       ├── BusinessException.java
+│   │   │               │   │       └── ErrorCode.java
+│   │   │               │   ├── product
+│   │   │               │   │   ├── dto
+│   │   │               │   │   │   └── ProductDto.java
+│   │   │               │   │   ├── ProductSearchUseCase.java
+│   │   │               │   │   └── ProductService.java
+│   │   │               │   └── user
+│   │   │               │       ├── CustomOAuthUserService.java
+│   │   │               │       ├── dto
+│   │   │               │       │   ├── OAuthAttributes.java
+│   │   │               │       │   └── UserProfileResponseDto.java
+│   │   │               │       ├── OAuth2LoginSuccessHandler.java
+│   │   │               │       └── UserService.java
+│   │   │               ├── CommerceMvpApplication.java
+│   │   │               ├── config
+│   │   │               │   ├── JwtAuthenticationFilter.java
+│   │   │               │   ├── JwtTokenProvider.java
+│   │   │               │   └── SecurityConfig.java
+│   │   │               ├── domain
+│   │   │               │   ├── auth
+│   │   │               │   │   ├── RefreshToken.java
+│   │   │               │   │   └── RefreshTokenRepository.java
+│   │   │               │   ├── product
+│   │   │               │   │   ├── Product.java
+│   │   │               │   │   └── ProductRepository.java
+│   │   │               │   └── user
+│   │   │               │       ├── SocialProvider.java
+│   │   │               │       ├── User.java
+│   │   │               │       ├── UserRepository.java
+│   │   │               │       └── UserRole.java
+│   │   │               ├── infrastructure
+│   │   │               │   ├── naver
+│   │   │               │   │   ├── NaverApiClient.java
+│   │   │               │   │   └── NaverSearchResponseDto.java
+│   │   │               │   └── persistence
+│   │   │               └── presentation
+│   │   │                   ├── auth
+│   │   │                   │   └── AuthController.java
+│   │   │                   ├── common
+│   │   │                   │   └── GlobalExceptionHandler.java
+│   │   │                   ├── product
+│   │   │                   │   └── ProductController.java
+│   │   │                   └── user
+│   │   │                       └── UserController.java
+│   │   └── resources
+│   │       ├── application.yml
+│   │       ├── static
+│   │       │   └── index.html
+│   │       └── templates
+│   └── test
+│       ├── java
+│       │   └── com
+│       │       └── example
+│       │           └── commerce_mvp
+│       │               ├── application
+│       │               │   └── product
+│       │               │       └── ProductSearchUseCaseTest.java
+│       │               └── CommerceMvpApplicationTests.java
+│       └── resources
+│           └── application.yml
+└── tree.txt
+
+44 directories, 49 files
