@@ -3,6 +3,7 @@ package com.example.commerce_mvp.application.order;
 import com.example.commerce_mvp.application.common.dto.SliceResponse;
 import com.example.commerce_mvp.application.common.exception.BusinessException;
 import com.example.commerce_mvp.application.common.exception.ErrorCode;
+import com.example.commerce_mvp.application.common.util.AuthorizationUtils;
 import com.example.commerce_mvp.application.order.dto.CreateOrderRequestDto;
 import com.example.commerce_mvp.application.order.dto.OrderResponseDto;
 import com.example.commerce_mvp.domain.order.Order;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -39,35 +41,32 @@ public class OrderService {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND, "사용자를 찾을 수 없습니다: " + userEmail));
 
-        // 주문 생성
-        Order order = Order.builder()
-                .user(user)
-                .status(OrderStatus.PENDING)
-                .totalAmount(0) // 나중에 계산
-                .shippingAddress(request.getShippingAddress())
-                .shippingPhone(request.getShippingPhone())
-                .shippingName(request.getShippingName())
-                .build();
+        // 주문 생성 (도메인 팩토리 메서드 사용)
+        Order order = Order.createOrder(user, request.getShippingAddress(), 
+                request.getShippingPhone(), request.getShippingName());
 
-        // 주문 아이템 생성 및 재고 확인
+        // 상품 ID 목록 추출
+        List<Long> productIds = request.getOrderItems().stream()
+                .map(CreateOrderRequestDto.OrderItemRequestDto::getProductId)
+                .collect(Collectors.toList());
+
+        // 동시성 제어를 위해 상품들을 Lock으로 조회
+        List<Product> products = productRepository.findByIdsWithLock(productIds);
+        Map<Long, Product> productMap = products.stream()
+                .collect(Collectors.toMap(Product::getId, product -> product));
+
+        // 주문 아이템 생성 및 재고 확인 (도메인 로직 사용)
         for (CreateOrderRequestDto.OrderItemRequestDto itemRequest : request.getOrderItems()) {
-            Product product = productRepository.findById(itemRequest.getProductId())
-                    .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND, "상품을 찾을 수 없습니다: " + itemRequest.getProductId()));
-
-            // 재고 확인
-            if (product.getStock() < itemRequest.getQuantity()) {
-                throw new BusinessException(ErrorCode.INSUFFICIENT_STOCK, 
-                    "재고가 부족합니다. 상품: " + product.getName() + ", 요청 수량: " + itemRequest.getQuantity() + ", 재고: " + product.getStock());
+            Product product = productMap.get(itemRequest.getProductId());
+            if (product == null) {
+                throw new BusinessException(ErrorCode.PRODUCT_NOT_FOUND, "상품을 찾을 수 없습니다: " + itemRequest.getProductId());
             }
 
-            // 주문 아이템 생성
-            OrderItem orderItem = OrderItem.builder()
-                    .product(product)
-                    .quantity(itemRequest.getQuantity())
-                    .price(product.getPrice())
-                    .build();
-
-            order.addOrderItem(orderItem);
+            // OrderItem 생성 (도메인 팩토리 메서드 사용)
+            OrderItem orderItem = OrderItem.createOrderItem(product, itemRequest.getQuantity());
+            
+            // 주문 아이템 추가 및 재고 확인/차감 (도메인 로직 사용)
+            order.addOrderItemWithStockCheck(orderItem);
         }
 
         // 총 금액 계산
@@ -75,13 +74,6 @@ public class OrderService {
 
         // 주문 저장
         Order savedOrder = orderRepository.save(order);
-
-        // 재고 차감
-        for (OrderItem orderItem : savedOrder.getOrderItems()) {
-            Product product = orderItem.getProduct();
-            product.updateStock(product.getStock() - orderItem.getQuantity());
-            productRepository.save(product);
-        }
 
         log.info("주문 생성 완료 - 주문 ID: {}, 사용자: {}, 총 금액: {}", 
                 savedOrder.getId(), userEmail, savedOrder.getTotalAmount());
@@ -93,7 +85,8 @@ public class OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND, "주문을 찾을 수 없습니다: " + orderId));
 
-        // 본인 주문만 조회 가능
+        // 권한 확인 (도메인 로직 사용)
+        AuthorizationUtils.validateUserOwnership(userEmail);
         if (!order.getUser().getEmail().equals(userEmail)) {
             throw new BusinessException(ErrorCode.ACCESS_DENIED, "본인의 주문만 조회할 수 있습니다.");
         }
@@ -120,33 +113,28 @@ public class OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND, "주문을 찾을 수 없습니다: " + orderId));
 
-        // 본인 주문만 취소 가능
+        // 권한 확인
+        AuthorizationUtils.validateUserOwnership(userEmail);
         if (!order.getUser().getEmail().equals(userEmail)) {
             throw new BusinessException(ErrorCode.ACCESS_DENIED, "본인의 주문만 취소할 수 있습니다.");
         }
 
-        // 주문 상태 확인
-        if (order.getStatus() != OrderStatus.PENDING && order.getStatus() != OrderStatus.CONFIRMED) {
-            throw new BusinessException(ErrorCode.INVALID_ORDER_STATUS, "취소할 수 없는 주문 상태입니다: " + order.getStatus());
-        }
-
-        // 주문 취소
-        order.changeStatus(OrderStatus.CANCELLED);
-
-        // 재고 복구
-        for (OrderItem orderItem : order.getOrderItems()) {
-            Product product = orderItem.getProduct();
-            product.updateStock(product.getStock() + orderItem.getQuantity());
-            productRepository.save(product);
-        }
+        // 주문 취소 (도메인 로직 사용)
+        order.cancel();
+        
+        // 변경사항 저장
+        Order savedOrder = orderRepository.save(order);
 
         log.info("주문 취소 완료 - 주문 ID: {}, 사용자: {}", orderId, userEmail);
 
-        return OrderResponseDto.from(order);
+        return OrderResponseDto.from(savedOrder);
     }
 
     @Transactional
     public OrderResponseDto updateOrderStatus(Long orderId, OrderStatus newStatus) {
+        // 관리자 권한 확인
+        AuthorizationUtils.validateAdminRole();
+        
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND, "주문을 찾을 수 없습니다: " + orderId));
 

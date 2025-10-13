@@ -1,10 +1,12 @@
 package com.example.commerce_mvp.presentation.order;
 
 import com.example.commerce_mvp.application.common.dto.SliceResponse;
+import com.example.commerce_mvp.application.common.util.AuthorizationUtils;
 import com.example.commerce_mvp.application.order.OrderService;
 import com.example.commerce_mvp.application.order.dto.CreateOrderRequestDto;
 import com.example.commerce_mvp.application.order.dto.OrderResponseDto;
 import com.example.commerce_mvp.domain.order.OrderStatus;
+import com.example.commerce_mvp.domain.user.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,10 +29,10 @@ public class OrderController {
             @Valid @RequestBody CreateOrderRequestDto request,
             Authentication authentication) {
         
-        String userEmail = authentication.getName();
-        OrderResponseDto response = orderService.createOrder(userEmail, request);
+        User currentUser = AuthorizationUtils.getCurrentUser();
+        OrderResponseDto response = orderService.createOrder(currentUser.getEmail(), request);
         
-        log.info("주문 생성 API 호출 - 사용자: {}", userEmail);
+        log.info("주문 생성 API 호출 - 사용자: {}", currentUser.getEmail());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -39,10 +41,10 @@ public class OrderController {
             @PathVariable Long orderId,
             Authentication authentication) {
         
-        String userEmail = authentication.getName();
-        OrderResponseDto response = orderService.getOrder(orderId, userEmail);
+        User currentUser = AuthorizationUtils.getCurrentUser();
+        OrderResponseDto response = orderService.getOrder(orderId, currentUser.getEmail());
         
-        log.info("주문 조회 API 호출 - 주문 ID: {}, 사용자: {}", orderId, userEmail);
+        log.info("주문 조회 API 호출 - 주문 ID: {}, 사용자: {}", orderId, currentUser.getEmail());
         return ResponseEntity.ok(response);
     }
 
@@ -52,10 +54,10 @@ public class OrderController {
             @RequestParam(defaultValue = "10") int size,
             Authentication authentication) {
         
-        String userEmail = authentication.getName();
-        SliceResponse<OrderResponseDto> response = orderService.getMyOrders(userEmail, page, size);
+        User currentUser = AuthorizationUtils.getCurrentUser();
+        SliceResponse<OrderResponseDto> response = orderService.getMyOrders(currentUser.getEmail(), page, size);
         
-        log.info("내 주문 목록 조회 API 호출 - 사용자: {}, 페이지: {}, 크기: {}", userEmail, page, size);
+        log.info("내 주문 목록 조회 API 호출 - 사용자: {}, 페이지: {}, 크기: {}", currentUser.getEmail(), page, size);
         return ResponseEntity.ok(response);
     }
 
@@ -64,10 +66,10 @@ public class OrderController {
             @PathVariable Long orderId,
             Authentication authentication) {
         
-        String userEmail = authentication.getName();
-        OrderResponseDto response = orderService.cancelOrder(orderId, userEmail);
+        User currentUser = AuthorizationUtils.getCurrentUser();
+        OrderResponseDto response = orderService.cancelOrder(orderId, currentUser.getEmail());
         
-        log.info("주문 취소 API 호출 - 주문 ID: {}, 사용자: {}", orderId, userEmail);
+        log.info("주문 취소 API 호출 - 주문 ID: {}, 사용자: {}", orderId, currentUser.getEmail());
         return ResponseEntity.ok(response);
     }
 
@@ -78,10 +80,10 @@ public class OrderController {
             @RequestParam OrderStatus status,
             Authentication authentication) {
         
-        String userEmail = authentication.getName();
+        User currentUser = AuthorizationUtils.getCurrentUser();
         OrderResponseDto response = orderService.updateOrderStatus(orderId, status);
         
-        log.info("주문 상태 변경 API 호출 - 주문 ID: {}, 상태: {}, 관리자: {}", orderId, status, userEmail);
+        log.info("주문 상태 변경 API 호출 - 주문 ID: {}, 상태: {}, 관리자: {}", orderId, status, currentUser.getEmail());
         return ResponseEntity.ok(response);
     }
 }

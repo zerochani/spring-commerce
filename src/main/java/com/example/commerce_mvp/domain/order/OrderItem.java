@@ -52,4 +52,16 @@ public class OrderItem {
     public void changeQuantity(int quantity) {
         this.quantity = quantity;
     }
+
+    // OrderItem 생성 팩토리 메서드
+    public static OrderItem createOrderItem(Product product, int quantity) {
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("수량은 0보다 커야 합니다.");
+        }
+        return OrderItem.builder()
+                .product(product)
+                .quantity(quantity)
+                .price(product.getPrice())
+                .build();
+    }
 }

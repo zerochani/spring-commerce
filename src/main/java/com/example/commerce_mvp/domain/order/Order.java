@@ -81,4 +81,55 @@ public class Order {
                 .mapToInt(OrderItem::getTotalPrice)
                 .sum();
     }
+
+    // 주문 생성 팩토리 메서드
+    public static Order createOrder(User user, String shippingAddress, String shippingPhone, String shippingName) {
+        return Order.builder()
+                .user(user)
+                .status(OrderStatus.PENDING)
+                .totalAmount(0) // 나중에 계산
+                .shippingAddress(shippingAddress)
+                .shippingPhone(shippingPhone)
+                .shippingName(shippingName)
+                .build();
+    }
+
+    // 주문 아이템 추가 및 재고 확인
+    public void addOrderItemWithStockCheck(OrderItem orderItem) {
+        // 재고 확인
+        if (orderItem.getProduct().getStock() < orderItem.getQuantity()) {
+            throw new IllegalStateException(
+                "재고가 부족합니다. 상품: " + orderItem.getProduct().getName() + 
+                ", 요청 수량: " + orderItem.getQuantity() + 
+                ", 재고: " + orderItem.getProduct().getStock()
+            );
+        }
+        
+        // 주문 아이템 추가
+        addOrderItem(orderItem);
+        
+        // 재고 차감
+        orderItem.getProduct().decreaseStock(orderItem.getQuantity());
+    }
+
+    // 주문 취소 시 재고 복구
+    public void restoreStock() {
+        for (OrderItem orderItem : orderItems) {
+            orderItem.getProduct().increaseStock(orderItem.getQuantity());
+        }
+    }
+
+    // 주문 취소 가능 여부 확인
+    public boolean canBeCancelled() {
+        return status == OrderStatus.PENDING || status == OrderStatus.CONFIRMED;
+    }
+
+    // 주문 취소
+    public void cancel() {
+        if (!canBeCancelled()) {
+            throw new IllegalStateException("취소할 수 없는 주문 상태입니다: " + status);
+        }
+        changeStatus(OrderStatus.CANCELLED);
+        restoreStock();
+    }
 }
