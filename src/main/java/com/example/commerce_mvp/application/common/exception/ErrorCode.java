@@ -19,6 +19,10 @@ public enum ErrorCode {
     ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "ORDER_001", "주문을 찾을 수 없습니다."),
     INVALID_ORDER_STATUS(HttpStatus.BAD_REQUEST, "ORDER_002", "잘못된 주문 상태입니다."),
     
+    // 장바구니 관련 에러
+    CART_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "CART_001", "장바구니 아이템을 찾을 수 없습니다."),
+    CART_ITEM_OUT_OF_STOCK(HttpStatus.BAD_REQUEST, "CART_002", "재고가 부족한 상품이 장바구니에 있습니다."),
+    
     // 공통 에러
     INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "COMMON_001", "입력값이 올바르지 않습니다."),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "COMMON_002", "서버 내부 오류가 발생했습니다."),
