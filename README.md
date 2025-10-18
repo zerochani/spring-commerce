@@ -2,7 +2,7 @@
 
 **DDD와 클린 아키텍처를 적용하여 확장성과 테스트 용이성을 확보한 커머스 백엔드 MVP**
 
-![Java](https://img.shields.io/badge/Java-17-orange) ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-green) ![Spring Security](https://img.shields.io/badge/Spring%20Security-6.x-blue) ![JPA](https://img.shields.io/badge/JPA-Hibernate-lightgrey) ![JUnit 5](https://img.shields.io/badge/JUnit-5-blue?logo=junit5) ![Mockito](https://img.shields.io/badge/Mockito-Mocking-4EAA5B?logo=mockito) ![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1) ![JWT](https://img.shields.io/badge/JWT-Authentication-black) ![Validation](https://img.shields.io/badge/Validation-Spring%20Boot-green) ![Exception%20Handling](https://img.shields.io/badge/Exception%20Handling-Global%20Handler-red)
+![Java](https://img.shields.io/badge/Java-17-orange) ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-green) ![Spring Security](https://img.shields.io/badge/Spring%20Security-6.x-blue) ![JPA](https://img.shields.io/badge/JPA-Hibernate-lightgrey) ![JUnit 5](https://img.shields.io/badge/JUnit-5-blue?logo=junit5) ![Mockito](https://img.shields.io/badge/Mockito-Mocking-4EAA5B?logo=mockito) ![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1) ![JWT](https://img.shields.io/badge/JWT-Authentication-black) ![Validation](https://img.shields.io/badge/Validation-Spring%20Boot-green) ![Exception%20Handling](https://img.shields.io/badge/Exception%20Handling-Global%20Handler-red) ![Event%20Driven](https://img.shields.io/badge/Event%20Driven-Architecture-purple) ![AOP](https://img.shields.io/badge/AOP-Spring%20Security-orange)
 
 ---
 
@@ -98,8 +98,9 @@ graph TD
 -   **동시성 제어**: Pessimistic Lock을 통한 Race Condition 해결로 다중 사용자가 동시에 같은 상품을 장바구니에 추가해도 안전합니다.
 -   **재고 관리**: 재고 부족 아이템 자동 감지 및 제거 기능으로 사용자 경험을 향상시켰습니다.
 -   **장바구니 요약 정보**: 총 아이템 수, 총 금액, 재고 상태 등을 한 번에 조회할 수 있습니다.
--   **주문 연동**: 장바구니에서 바로 주문 생성이 가능하며, 주문 완료 시 장바구니가 자동으로 비워집니다.
--   **권한 기반 접근 제어**: 본인 장바구니만 접근 가능하며, 페이징을 통한 효율적인 조회를 지원합니다.
+-   **이벤트 기반 주문 연동**: 장바구니에서 주문 생성 시 이벤트를 통한 느슨한 결합으로 장바구니 자동 비우기를 구현했습니다.
+-   **권한 기반 접근 제어**: @PreAuthorize를 통한 자동 권한 검증으로 보안을 강화했습니다.
+-   **N+1 문제 해결**: @EntityGraph를 활용한 fetch join으로 성능을 최적화했습니다.
 
 ### 5) 전역 예외 처리 및 표준화된 에러 응답
 -   **GlobalExceptionHandler**를 구현하여 일관된 에러 응답 형식을 제공합니다.
@@ -110,6 +111,12 @@ graph TD
 -   **Spring Validation**을 활용하여 API 입력값에 대한 검증을 강화했습니다.
 -   DTO에 `@NotBlank`, `@Min`, `@Max` 등의 어노테이션을 적용하여 데이터 무결성을 보장합니다.
 -   검증 실패 시 명확한 에러 메시지를 제공하여 개발자와 사용자 경험을 개선했습니다.
+
+### 7) 이벤트 기반 아키텍처 및 AOP 활용
+-   **이벤트 기반 아키텍처**: 주문 완료 시 이벤트 발행을 통한 느슨한 결합 구현
+-   **비동기 이벤트 처리**: @Async를 활용한 비동기 이벤트 처리로 성능 향상
+-   **AOP 기반 권한 검증**: @PreAuthorize를 통한 자동 권한 검증으로 보안 강화
+-   **@AuthenticationPrincipal**: 모든 컨트롤러에 일관된 사용자 인증 방식 적용
 
 ---
 
@@ -157,6 +164,10 @@ graph TD
 -   **문제**: 사용자가 여러 상품을 한 번에 주문할 수 있는 장바구니 기능과 주문 시스템과의 연동이 필요했습니다.
 -   **해결**: 완전한 장바구니 시스템을 구현하여 아이템 추가/수정/삭제/조회 기능을 제공하고, 재고 부족 아이템 자동 감지 및 제거 기능을 추가했습니다. 또한 장바구니에서 바로 주문 생성이 가능하도록 주문 시스템과 연동하여 사용자 경험을 향상시켰습니다.
 
+### Problem & Solution 11: 이벤트 기반 아키텍처 및 AOP 활용
+-   **문제**: 장바구니와 주문 시스템 간의 강결합, 수동 권한 검증으로 인한 보안 누락 위험, N+1 문제로 인한 성능 저하 등의 문제가 있었습니다.
+-   **해결**: 이벤트 기반 아키텍처를 도입하여 주문 완료 시 이벤트 발행을 통한 느슨한 결합을 구현했습니다. @PreAuthorize를 통한 AOP 기반 자동 권한 검증으로 보안을 강화하고, @EntityGraph를 활용한 fetch join으로 N+1 문제를 해결했습니다. 또한 @AuthenticationPrincipal을 모든 컨트롤러에 적용하여 일관된 사용자 인증 방식을 구축했습니다.
+
 ---
 
 ## 📈 7. 결과 및 성과
@@ -169,13 +180,14 @@ graph TD
 -   **완전한 커머스 주문 시스템**: 주문 생성부터 배송 완료까지의 전체 프로세스를 구현하고, 재고 자동 관리와 상태별 권한 제어를 통해 실무 수준의 주문 시스템을 구축했습니다.
 -   **동시성 제어 및 도메인 중심 설계**: Pessimistic Lock을 통한 Race Condition 해결과 도메인 엔티티 중심의 비즈니스 로직 설계로 확장 가능하고 안전한 시스템을 구축했습니다.
 -   **완전한 장바구니 시스템**: 사용자 친화적인 장바구니 기능과 주문 시스템과의 완벽한 연동을 통해 실무 수준의 커머스 플랫폼을 완성했습니다.
--   **실무적인 문제 해결 능력 입증**: 단순 기능 구현을 넘어, 페이지네이션 성능 최적화, 계정 통합, 테스트 환경 구축, 토큰 재발급 시스템, 보안 강화, 주문 시스템, 동시성 제어, 장바구니 시스템 등 실제 서비스에서 마주할 수 있는 문제들을 주도적으로 정의하고 해결했습니다.
+-   **이벤트 기반 아키텍처 및 AOP 활용**: 이벤트 기반 아키텍처를 통한 느슨한 결합, AOP 기반 자동 권한 검증, N+1 문제 해결, 일관된 사용자 인증 방식 구축을 통해 확장 가능하고 유지보수성이 높은 시스템을 구축했습니다.
+-   **실무적인 문제 해결 능력 입증**: 단순 기능 구현을 넘어, 페이지네이션 성능 최적화, 계정 통합, 테스트 환경 구축, 토큰 재발급 시스템, 보안 강화, 주문 시스템, 동시성 제어, 장바구니 시스템, 이벤트 기반 아키텍처, AOP 활용 등 실제 서비스에서 마주할 수 있는 문제들을 주도적으로 정의하고 해결했습니다.
 
 ---
 
 ## 📚 8. 프로젝트를 통해 배운 점 및 향후 계획
 
--   **배운 점**: 도메인을 중심으로 설계하는 것이 왜 중요한지, 그리고 외부 기술에 의존하지 않는 순수한 비즈니스 로직을 만드는 것이 시스템의 수명을 어떻게 늘려주는지 체감할 수 있었습니다. 또한 일관된 에러 처리와 입력값 검증이 API의 안정성과 사용자 경험에 미치는 영향을 깊이 이해할 수 있었습니다.
+-   **배운 점**: 도메인을 중심으로 설계하는 것이 왜 중요한지, 그리고 외부 기술에 의존하지 않는 순수한 비즈니스 로직을 만드는 것이 시스템의 수명을 어떻게 늘려주는지 체감할 수 있었습니다. 또한 일관된 에러 처리와 입력값 검증이 API의 안정성과 사용자 경험에 미치는 영향을 깊이 이해할 수 있었습니다. 특히 이벤트 기반 아키텍처와 AOP를 활용한 관점 지향 프로그래밍이 코드의 결합도를 낮추고 확장성을 높이는 데 얼마나 효과적인지 실감할 수 있었습니다.
 -   **향후 계획**:
     1.  **단위 테스트 및 통합 테스트 코드 작성**: 설계한 구조의 이점을 살려, 각 계층별로 견고한 테스트 코드를 작성하여 시스템의 안정성을 높일 것입니다.
     2.  **결제 시스템 연동**: 토스페이먼츠 또는 카카오페이를 연동하여 실제 결제 처리가 가능한 완전한 커머스 플랫폼을 구축할 계획입니다.
