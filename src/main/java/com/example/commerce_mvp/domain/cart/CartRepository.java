@@ -4,6 +4,7 @@ import com.example.commerce_mvp.domain.product.Product;
 import com.example.commerce_mvp.domain.user.User;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
@@ -18,17 +19,20 @@ import java.util.Optional;
 @Repository
 public interface CartRepository extends JpaRepository<Cart, Long> {
 
-    // 사용자별 장바구니 조회 (페이징)
+    // 사용자별 장바구니 조회 (페이징) - N+1 문제 해결
+    @EntityGraph(attributePaths = {"product", "user"})
     Slice<Cart> findByUserOrderByUpdatedAtDesc(User user, Pageable pageable);
 
-    // 사용자별 장바구니 전체 조회
+    // 사용자별 장바구니 전체 조회 - N+1 문제 해결
+    @EntityGraph(attributePaths = {"product", "user"})
     List<Cart> findByUserOrderByUpdatedAtDesc(User user);
 
     // 특정 사용자와 상품으로 장바구니 아이템 조회
     Optional<Cart> findByUserAndProduct(User user, Product product);
 
-    // 동시성 제어를 위한 Lock 조회
+    // 동시성 제어를 위한 Lock 조회 - N+1 문제 해결
     @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @EntityGraph(attributePaths = {"product", "user"})
     @Query("SELECT c FROM Cart c WHERE c.user = :user AND c.product = :product")
     Optional<Cart> findByUserAndProductWithLock(@Param("user") User user, @Param("product") Product product);
 
@@ -55,7 +59,8 @@ public interface CartRepository extends JpaRepository<Cart, Long> {
     @Query("DELETE FROM Cart c WHERE c.user = :user AND c.product IN :products")
     void deleteByUserAndProducts(@Param("user") User user, @Param("products") List<Product> products);
 
-    // 재고 부족한 장바구니 아이템 조회
+    // 재고 부족한 장바구니 아이템 조회 - N+1 문제 해결
+    @EntityGraph(attributePaths = {"product", "user"})
     @Query("SELECT c FROM Cart c WHERE c.user = :user AND c.quantity > c.product.stock")
     List<Cart> findOutOfStockItemsByUser(@Param("user") User user);
 }

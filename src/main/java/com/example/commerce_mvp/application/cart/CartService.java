@@ -113,18 +113,10 @@ public class CartService {
     }
 
     @Transactional
-    public CartItemResponseDto updateCartItem(Long cartId, String userEmail, UpdateCartItemRequestDto request) {
-        // 권한 확인
-        AuthorizationUtils.validateUserOwnership(userEmail);
-
-        // 장바구니 아이템 조회
-        Cart cart = cartRepository.findById(cartId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.CART_ITEM_NOT_FOUND, "장바구니 아이템을 찾을 수 없습니다: " + cartId));
-
-        // 본인 장바구니만 수정 가능
-        if (!cart.getUser().getEmail().equals(userEmail)) {
-            throw new BusinessException(ErrorCode.ACCESS_DENIED, "본인의 장바구니만 수정할 수 있습니다.");
-        }
+    public CartItemResponseDto updateCartItem(Long cartItemId, String userEmail, UpdateCartItemRequestDto request) {
+        // 장바구니 아이템 조회 (@PreAuthorize에서 권한 검증)
+        Cart cart = cartRepository.findById(cartItemId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.CART_ITEM_NOT_FOUND, "장바구니 아이템을 찾을 수 없습니다: " + cartItemId));
 
         // 수량 업데이트
         cart.updateQuantity(request.getQuantity());
@@ -136,18 +128,10 @@ public class CartService {
     }
 
     @Transactional
-    public void removeCartItem(Long cartId, String userEmail) {
-        // 권한 확인
-        AuthorizationUtils.validateUserOwnership(userEmail);
-
-        // 장바구니 아이템 조회
-        Cart cart = cartRepository.findById(cartId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.CART_ITEM_NOT_FOUND, "장바구니 아이템을 찾을 수 없습니다: " + cartId));
-
-        // 본인 장바구니만 삭제 가능
-        if (!cart.getUser().getEmail().equals(userEmail)) {
-            throw new BusinessException(ErrorCode.ACCESS_DENIED, "본인의 장바구니만 삭제할 수 있습니다.");
-        }
+    public void removeCartItem(Long cartItemId, String userEmail) {
+        // 장바구니 아이템 조회 (@PreAuthorize에서 권한 검증)
+        Cart cart = cartRepository.findById(cartItemId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.CART_ITEM_NOT_FOUND, "장바구니 아이템을 찾을 수 없습니다: " + cartItemId));
 
         cartRepository.delete(cart);
 
@@ -160,9 +144,6 @@ public class CartService {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND, "사용자를 찾을 수 없습니다: " + userEmail));
 
-        // 권한 확인
-        AuthorizationUtils.validateUserOwnership(userEmail);
-
         cartRepository.deleteByUser(user);
 
         log.info("장바구니 비우기 - 사용자: {}", userEmail);
@@ -174,9 +155,6 @@ public class CartService {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND, "사용자를 찾을 수 없습니다: " + userEmail));
 
-        // 권한 확인
-        AuthorizationUtils.validateUserOwnership(userEmail);
-
         // 재고 부족 아이템 조회
         List<Cart> outOfStockItems = cartRepository.findOutOfStockItemsByUser(user);
         
@@ -187,7 +165,7 @@ public class CartService {
     }
 
     @Transactional
-    public OrderResponseDto createOrderFromCart(String userEmail, CreateOrderFromCartRequestDto request) {
+    public OrderResponseDto createOrderFromCartItems(String userEmail, CreateOrderFromCartRequestDto request) {
         // 사용자 조회
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND, "사용자를 찾을 수 없습니다: " + userEmail));
@@ -220,14 +198,30 @@ public class CartService {
                 .shippingName(request.getShippingName())
                 .build();
 
-        // 주문 생성
+        // 주문 생성만 담당 (장바구니 비우기는 별도 처리)
         OrderResponseDto orderResponse = orderService.createOrder(userEmail, orderRequest);
-
-        // 장바구니 비우기
-        cartRepository.deleteByUser(user);
 
         log.info("장바구니에서 주문 생성 완료 - 사용자: {}, 주문 ID: {}", userEmail, orderResponse.getOrderId());
 
         return orderResponse;
+    }
+
+    @Transactional
+    public void clearCartAfterOrder(String userEmail) {
+        // 사용자 조회
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND, "사용자를 찾을 수 없습니다: " + userEmail));
+
+        // 장바구니 비우기
+        cartRepository.deleteByUser(user);
+
+        log.info("주문 후 장바구니 비우기 완료 - 사용자: {}", userEmail);
+    }
+
+    // @PreAuthorize에서 사용할 장바구니 아이템 소유자 이메일 조회
+    public String getCartItemOwnerEmail(Long cartItemId) {
+        Cart cart = cartRepository.findById(cartItemId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.CART_ITEM_NOT_FOUND, "장바구니 아이템을 찾을 수 없습니다: " + cartItemId));
+        return cart.getUser().getEmail();
     }
 }

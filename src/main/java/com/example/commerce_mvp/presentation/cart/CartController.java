@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -60,28 +61,30 @@ public class CartController {
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/items/{cartId}")
+    @PatchMapping("/items/{cartItemId}")
+    @PreAuthorize("authentication.name == @cartService.getCartItemOwnerEmail(#cartItemId)")
     public ResponseEntity<CartItemResponseDto> updateCartItem(
-            @PathVariable Long cartId,
+            @PathVariable Long cartItemId,
             @Valid @RequestBody UpdateCartItemRequestDto request,
             Authentication authentication) {
         
         User currentUser = AuthorizationUtils.getCurrentUser();
-        CartItemResponseDto response = cartService.updateCartItem(cartId, currentUser.getEmail(), request);
+        CartItemResponseDto response = cartService.updateCartItem(cartItemId, currentUser.getEmail(), request);
         
-        log.info("장바구니 아이템 수정 API 호출 - 사용자: {}, 장바구니 ID: {}", currentUser.getEmail(), cartId);
+        log.info("장바구니 아이템 수정 API 호출 - 사용자: {}, 장바구니 아이템 ID: {}", currentUser.getEmail(), cartItemId);
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/items/{cartId}")
+    @DeleteMapping("/items/{cartItemId}")
+    @PreAuthorize("authentication.name == @cartService.getCartItemOwnerEmail(#cartItemId)")
     public ResponseEntity<Void> removeCartItem(
-            @PathVariable Long cartId,
+            @PathVariable Long cartItemId,
             Authentication authentication) {
         
         User currentUser = AuthorizationUtils.getCurrentUser();
-        cartService.removeCartItem(cartId, currentUser.getEmail());
+        cartService.removeCartItem(cartItemId, currentUser.getEmail());
         
-        log.info("장바구니 아이템 삭제 API 호출 - 사용자: {}, 장바구니 ID: {}", currentUser.getEmail(), cartId);
+        log.info("장바구니 아이템 삭제 API 호출 - 사용자: {}, 장바구니 아이템 ID: {}", currentUser.getEmail(), cartItemId);
         return ResponseEntity.noContent().build();
     }
 
@@ -109,7 +112,17 @@ public class CartController {
             Authentication authentication) {
         
         User currentUser = AuthorizationUtils.getCurrentUser();
-        OrderResponseDto response = cartService.createOrderFromCart(currentUser.getEmail(), request);
+        
+        // 1. 장바구니에서 주문 생성
+        OrderResponseDto response = cartService.createOrderFromCartItems(currentUser.getEmail(), request);
+        
+        // 2. 주문 성공 후 장바구니 비우기
+        try {
+            cartService.clearCartAfterOrder(currentUser.getEmail());
+        } catch (Exception e) {
+            log.warn("주문 후 장바구니 비우기 실패 - 사용자: {}, 에러: {}", currentUser.getEmail(), e.getMessage());
+            // 장바구니 비우기 실패해도 주문은 성공으로 처리
+        }
         
         log.info("장바구니에서 주문 생성 API 호출 - 사용자: {}, 주문 ID: {}", currentUser.getEmail(), response.getOrderId());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
