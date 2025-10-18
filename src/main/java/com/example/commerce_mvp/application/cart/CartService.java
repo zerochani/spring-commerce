@@ -3,7 +3,7 @@ package com.example.commerce_mvp.application.cart;
 import com.example.commerce_mvp.application.common.dto.SliceResponse;
 import com.example.commerce_mvp.application.common.exception.BusinessException;
 import com.example.commerce_mvp.application.common.exception.ErrorCode;
-import com.example.commerce_mvp.application.common.util.AuthorizationUtils;
+import com.example.commerce_mvp.application.common.util.SecurityContextUtils;
 import com.example.commerce_mvp.application.cart.dto.AddCartItemRequestDto;
 import com.example.commerce_mvp.application.cart.dto.CartItemResponseDto;
 import com.example.commerce_mvp.application.cart.dto.CartSummaryResponseDto;
@@ -40,7 +40,10 @@ public class CartService {
     private final OrderService orderService;
 
     @Transactional
-    public CartItemResponseDto addCartItem(String userEmail, AddCartItemRequestDto request) {
+    public CartItemResponseDto addCartItem(AddCartItemRequestDto request) {
+        // SecurityContext에서 사용자 이메일 조회
+        String userEmail = SecurityContextUtils.getCurrentUserEmail();
+        
         // 사용자 조회
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND, "사용자를 찾을 수 없습니다: " + userEmail));
@@ -72,7 +75,10 @@ public class CartService {
         return CartItemResponseDto.from(cart);
     }
 
-    public SliceResponse<CartItemResponseDto> getCartItems(String userEmail, int page, int size) {
+    public SliceResponse<CartItemResponseDto> getCartItems(int page, int size) {
+        // SecurityContext에서 사용자 이메일 조회
+        String userEmail = SecurityContextUtils.getCurrentUserEmail();
+        
         // 사용자 조회
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND, "사용자를 찾을 수 없습니다: " + userEmail));
@@ -87,7 +93,10 @@ public class CartService {
         return new SliceResponse<>(content, cartSlice.hasNext(), null);
     }
 
-    public CartSummaryResponseDto getCartSummary(String userEmail) {
+    public CartSummaryResponseDto getCartSummary() {
+        // SecurityContext에서 사용자 이메일 조회
+        String userEmail = SecurityContextUtils.getCurrentUserEmail();
+        
         // 사용자 조회
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND, "사용자를 찾을 수 없습니다: " + userEmail));
@@ -113,7 +122,10 @@ public class CartService {
     }
 
     @Transactional
-    public CartItemResponseDto updateCartItem(Long cartItemId, String userEmail, UpdateCartItemRequestDto request) {
+    public CartItemResponseDto updateCartItem(Long cartItemId, UpdateCartItemRequestDto request) {
+        // SecurityContext에서 사용자 이메일 조회
+        String userEmail = SecurityContextUtils.getCurrentUserEmail();
+        
         // 장바구니 아이템 조회 (@PreAuthorize에서 권한 검증)
         Cart cart = cartRepository.findById(cartItemId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.CART_ITEM_NOT_FOUND, "장바구니 아이템을 찾을 수 없습니다: " + cartItemId));
@@ -128,7 +140,10 @@ public class CartService {
     }
 
     @Transactional
-    public void removeCartItem(Long cartItemId, String userEmail) {
+    public void removeCartItem(Long cartItemId) {
+        // SecurityContext에서 사용자 이메일 조회
+        String userEmail = SecurityContextUtils.getCurrentUserEmail();
+        
         // 장바구니 아이템 조회 (@PreAuthorize에서 권한 검증)
         Cart cart = cartRepository.findById(cartItemId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.CART_ITEM_NOT_FOUND, "장바구니 아이템을 찾을 수 없습니다: " + cartItemId));
@@ -139,7 +154,10 @@ public class CartService {
     }
 
     @Transactional
-    public void clearCart(String userEmail) {
+    public void clearCart() {
+        // SecurityContext에서 사용자 이메일 조회
+        String userEmail = SecurityContextUtils.getCurrentUserEmail();
+        
         // 사용자 조회
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND, "사용자를 찾을 수 없습니다: " + userEmail));
@@ -150,7 +168,10 @@ public class CartService {
     }
 
     @Transactional
-    public void removeOutOfStockItems(String userEmail) {
+    public void removeOutOfStockItems() {
+        // SecurityContext에서 사용자 이메일 조회
+        String userEmail = SecurityContextUtils.getCurrentUserEmail();
+        
         // 사용자 조회
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND, "사용자를 찾을 수 없습니다: " + userEmail));
@@ -165,7 +186,10 @@ public class CartService {
     }
 
     @Transactional
-    public OrderResponseDto createOrderFromCartItems(String userEmail, CreateOrderFromCartRequestDto request) {
+    public OrderResponseDto createOrderFromCartItems(CreateOrderFromCartRequestDto request) {
+        // SecurityContext에서 사용자 이메일 조회
+        String userEmail = SecurityContextUtils.getCurrentUserEmail();
+        
         // 사용자 조회
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND, "사용자를 찾을 수 없습니다: " + userEmail));

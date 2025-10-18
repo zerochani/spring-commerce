@@ -6,6 +6,7 @@ import com.example.commerce_mvp.application.common.exception.ErrorCode;
 import com.example.commerce_mvp.application.common.util.AuthorizationUtils;
 import com.example.commerce_mvp.application.order.dto.CreateOrderRequestDto;
 import com.example.commerce_mvp.application.order.dto.OrderResponseDto;
+import com.example.commerce_mvp.application.order.event.OrderCreatedEvent;
 import com.example.commerce_mvp.domain.order.Order;
 import com.example.commerce_mvp.domain.order.OrderItem;
 import com.example.commerce_mvp.domain.order.OrderRepository;
@@ -16,6 +17,7 @@ import com.example.commerce_mvp.domain.user.User;
 import com.example.commerce_mvp.domain.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -34,6 +36,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public OrderResponseDto createOrder(String userEmail, CreateOrderRequestDto request) {
@@ -74,6 +77,9 @@ public class OrderService {
 
         // 주문 저장
         Order savedOrder = orderRepository.save(order);
+
+        // 주문 생성 완료 이벤트 발행
+        eventPublisher.publishEvent(new OrderCreatedEvent(this, savedOrder.getId(), userEmail, savedOrder.getTotalAmount()));
 
         log.info("주문 생성 완료 - 주문 ID: {}, 사용자: {}, 총 금액: {}", 
                 savedOrder.getId(), userEmail, savedOrder.getTotalAmount());

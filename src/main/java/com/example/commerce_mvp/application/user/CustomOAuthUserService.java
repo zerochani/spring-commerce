@@ -37,10 +37,7 @@ public class CustomOAuthUserService implements OAuth2UserService<OAuth2UserReque
 
         User user = saveOrUpdate(attributes);
 
-        return new DefaultOAuth2User(
-                Collections.singleton(new SimpleGrantedAuthority(user.getRole().getValue())),
-                attributes.getAttributes(),
-                attributes.getNameAttributeKey());
+        return new UserPrincipal(user);
     }
 
     @Transactional
