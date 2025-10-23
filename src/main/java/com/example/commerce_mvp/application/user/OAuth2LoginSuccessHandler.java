@@ -40,7 +40,9 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
         String registrationId = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
 
-        OAuthAttributes attributes = OAuthAttributes.of(registrationId, "sub", oAuth2User.getAttributes());
+        // 각 OAuth 제공자별로 올바른 userNameAttributeName 사용
+        String userNameAttributeName = getProviderUserNameAttributeName(registrationId);
+        OAuthAttributes attributes = OAuthAttributes.of(registrationId, userNameAttributeName, oAuth2User.getAttributes());
         String email = attributes.getEmail();
 
         //토큰 생성
@@ -69,5 +71,14 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         String result = objectMapper.writeValueAsString(accessTokenDto);
         response.getWriter().write(result);
 
+    }
+
+    private String getProviderUserNameAttributeName(String registrationId) {
+        return switch (registrationId.toLowerCase()) {
+            case "google" -> "sub";
+            case "naver" -> "response";
+            case "kakao" -> "id";
+            default -> "sub";
+        };
     }
 }

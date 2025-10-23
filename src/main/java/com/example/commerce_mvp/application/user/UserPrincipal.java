@@ -16,14 +16,21 @@ import java.util.Map;
 public class UserPrincipal implements UserDetails, OAuth2User {
     
     private final User user;
+    private final Map<String, Object> attributes;
     
     public UserPrincipal(User user) {
         this.user = user;
+        this.attributes = Collections.emptyMap();
+    }
+    
+    public UserPrincipal(User user, Map<String, Object> attributes) {
+        this.user = user;
+        this.attributes = attributes;
     }
     
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
+        return Collections.singletonList(new SimpleGrantedAuthority(user.getRole().getValue()));
     }
     
     @Override
@@ -67,7 +74,7 @@ public class UserPrincipal implements UserDetails, OAuth2User {
     // OAuth2User 구현
     @Override
     public Map<String, Object> getAttributes() {
-        return Collections.emptyMap();
+        return attributes;
     }
     
     @Override
