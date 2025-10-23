@@ -45,8 +45,22 @@ public class OAuthAttributes {
         String email = (String) attributes.get("email");
         String providerId = (String) attributes.get(userNameAttributeName);
         
-        if (username == null || email == null || providerId == null) {
-            throw new IllegalArgumentException("Google OAuth에서 필수 정보가 누락되었습니다.");
+        // 디버깅을 위한 로그
+        System.out.println("Google OAuth Attributes: " + attributes);
+        System.out.println("Username: " + username + ", Email: " + email + ", ProviderId: " + providerId);
+        
+        // 필수 정보가 없는 경우 기본값 설정
+        if (username == null || username.trim().isEmpty()) {
+            username = "Google User";
+        }
+        
+        if (email == null || email.trim().isEmpty()) {
+            throw new IllegalArgumentException("Google OAuth에서 이메일 정보가 필수입니다.");
+        }
+        
+        if (providerId == null || providerId.trim().isEmpty()) {
+            // sub가 없는 경우 email을 providerId로 사용
+            providerId = email;
         }
         
         return OAuthAttributes.builder()

@@ -3,6 +3,9 @@ package com.example.commerce_mvp.config;
 
 
 import com.example.commerce_mvp.application.auth.dto.TokenResponseDto;
+import com.example.commerce_mvp.application.user.UserPrincipal;
+import com.example.commerce_mvp.domain.user.User;
+import com.example.commerce_mvp.domain.user.UserRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -12,7 +15,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -29,14 +31,17 @@ public class JwtTokenProvider {
     private final Key key;
     private final long accessTokenExpiration;
     private final long refreshTokenExpiration;
+    private final UserRepository userRepository;
 
     public JwtTokenProvider(@Value("${jwt.secret}") String secretKey,
                             @Value("${jwt.access-token-expiration}") long accessTokenExpiration,
-                            @Value("${jwt.refresh-token-expiration}") long refreshTokenExpiration){
+                            @Value("${jwt.refresh-token-expiration}") long refreshTokenExpiration,
+                            UserRepository userRepository){
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
         this.accessTokenExpiration = accessTokenExpiration;
         this.refreshTokenExpiration = refreshTokenExpiration;
+        this.userRepository = userRepository;
     }
 
     public TokenResponseDto generateToken(String subject, Collection<? extends GrantedAuthority> authorities){
@@ -70,22 +75,23 @@ public class JwtTokenProvider {
 
     //Jwt 토큰을 복호화하여 토큰에 들어있는 정보를 꺼내는 메서드
     public Authentication getAuthentication(String accessToken){
-        //토큰 복호화
-        Claims claims = parseClaims(accessToken);
+        try {
+            //토큰 복호화
+            Claims claims = parseClaims(accessToken);
+            String email = claims.getSubject();
 
-        if(claims.get("auth") == null){
-            throw new RuntimeException("권한 정보가 없는 토큰입니다.");
+            // 데이터베이스에서 사용자 정보 조회
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다: " + email));
+
+            // UserPrincipal 생성
+            UserPrincipal userPrincipal = new UserPrincipal(user);
+
+            return new UsernamePasswordAuthenticationToken(userPrincipal, "", userPrincipal.getAuthorities());
+        } catch (Exception e) {
+            log.error("JWT 토큰 인증 중 오류 발생: {}", e.getMessage());
+            throw new RuntimeException("토큰 인증에 실패했습니다.", e);
         }
-
-        //클레임에서 권한 정보 가져오기
-        Collection<? extends GrantedAuthority> authorities =
-                Arrays.stream(claims.get("auth").toString().split(","))
-                        .map(SimpleGrantedAuthority::new)
-                        .collect(Collectors.toList());
-
-        //UserDetails 객체를 만들어서 Authentication 리턴
-        UserDetails principal = new User(claims.getSubject(), "", authorities);
-        return new UsernamePasswordAuthenticationToken(principal, "", authorities);
     }
 
     //토큰 정보를 검증하는 메서드
