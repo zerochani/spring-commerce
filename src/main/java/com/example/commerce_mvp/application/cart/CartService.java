@@ -187,17 +187,23 @@ public class CartService {
 
     @Transactional
     public OrderResponseDto createOrderFromCartItems(CreateOrderFromCartRequestDto request) {
+        log.info("장바구니에서 주문 생성 시작 - 요청: {}", request);
+        
         // SecurityContext에서 사용자 이메일 조회
         String userEmail = SecurityContextUtils.getCurrentUserEmail();
+        log.info("현재 사용자 이메일: {}", userEmail);
         
         // 사용자 조회
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND, "사용자를 찾을 수 없습니다: " + userEmail));
+        log.info("사용자 조회 완료: {}", user.getEmail());
 
         // 장바구니 아이템 조회
         List<Cart> cartItems = cartRepository.findByUserOrderByUpdatedAtDesc(user);
+        log.info("장바구니 아이템 조회 완료 - 아이템 수: {}", cartItems.size());
         
         if (cartItems.isEmpty()) {
+            log.warn("장바구니가 비어있음 - 사용자: {}", userEmail);
             throw new BusinessException(ErrorCode.CART_ITEM_NOT_FOUND, "장바구니가 비어있습니다.");
         }
 
@@ -223,7 +229,9 @@ public class CartService {
                 .build();
 
         // 주문 생성만 담당 (장바구니 비우기는 별도 처리)
+        log.info("주문 서비스 호출 시작 - 사용자: {}, 주문 아이템 수: {}", userEmail, orderItems.size());
         OrderResponseDto orderResponse = orderService.createOrder(userEmail, orderRequest);
+        log.info("주문 서비스 호출 완료 - 주문 ID: {}", orderResponse.getOrderId());
 
         log.info("장바구니에서 주문 생성 완료 - 사용자: {}, 주문 ID: {}", userEmail, orderResponse.getOrderId());
 
